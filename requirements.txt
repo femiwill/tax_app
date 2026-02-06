@@ -2,3 +2,4 @@ Flask==3.1.2
 Flask-SQLAlchemy==3.1.1
 reportlab==4.4.4
 SQLAlchemy==2.0.44
+gunicorn==23.0.0
