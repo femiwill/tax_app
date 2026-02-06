@@ -171,6 +171,10 @@ def index():
         db.session.add(record)
         db.session.commit()
 
+        effective_rate_old = (tax_old / annual_income * 100) if annual_income else 0.0
+        effective_rate_new = (tax_new / annual_income * 100) if annual_income else 0.0
+        savings = tax_old - tax_new
+
         return render_template("result.html",
                                annual_income=annual_income,
                                pension_annual=pension_annual,
@@ -195,7 +199,10 @@ def index():
                                tax_new=tax_new,
                                breakdown_new=breakdown_new,
                                net_annual_new=net_annual_new,
-                               net_monthly_new=net_monthly_new)
+                               net_monthly_new=net_monthly_new,
+                               effective_rate_old=effective_rate_old,
+                               effective_rate_new=effective_rate_new,
+                               savings=savings)
     return render_template("index.html")
 
 # -------------------------

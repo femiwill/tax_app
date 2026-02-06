@@ -4,173 +4,275 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Nigeria PIT Calculator</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇳🇬</text></svg>">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --brand-green: #008751;
-      --brand-green-light: #e8f5ee;
-      --brand-dark: #1a1d23;
-      --brand-surface: #21252b;
+      --brand: #008751;
+      --brand-dark: #006b41;
+      --brand-light: #e8f5ee;
+      --bg: #f0f2f5;
+      --surface: #ffffff;
+      --surface-2: #f8f9fa;
+      --text: #1a1d23;
+      --text-muted: #6c757d;
+      --border: #e2e5e9;
+      --shadow: 0 4px 24px rgba(0,0,0,0.06);
+      --shadow-lg: 0 8px 40px rgba(0,0,0,0.1);
     }
-    body { background: #f0f2f5; transition: background 0.3s, color 0.3s; }
-    [data-bs-theme="dark"] body,
-    [data-bs-theme="dark"] { background: var(--brand-dark); }
+    [data-bs-theme="dark"] {
+      --bg: #0f1117;
+      --surface: #1a1d25;
+      --surface-2: #22252e;
+      --text: #e4e6ea;
+      --text-muted: #8b8fa3;
+      --border: #2a2d37;
+      --shadow: 0 4px 24px rgba(0,0,0,0.2);
+      --shadow-lg: 0 8px 40px rgba(0,0,0,0.3);
+      --brand-light: #1a3328;
+    }
 
-    .navbar-brand-text { font-weight: 700; letter-spacing: -0.5px; }
-    .hero-section {
-      background: linear-gradient(135deg, var(--brand-green) 0%, #005c38 100%);
-      color: white;
-      padding: 2.5rem 0 2rem;
-      margin-bottom: -2rem;
+    * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    body { background: var(--bg); color: var(--text); transition: all 0.3s ease; }
+
+    /* Navbar */
+    .top-nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+      position: sticky; top: 0; z-index: 100;
     }
+    .nav-brand { font-weight: 800; font-size: 1.1rem; color: var(--brand); text-decoration: none; }
+    .nav-brand:hover { color: var(--brand-dark); }
+    .theme-toggle {
+      width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--border);
+      background: var(--surface-2); color: var(--text); display: flex; align-items: center;
+      justify-content: center; cursor: pointer; transition: all 0.2s;
+    }
+    .theme-toggle:hover { background: var(--brand-light); color: var(--brand); border-color: var(--brand); }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(135deg, #008751 0%, #005c38 50%, #003d25 100%);
+      padding: 3.5rem 0 4.5rem;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; top: -50%; right: -20%; width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .hero::after {
+      content: ''; position: absolute; bottom: -40%; left: -10%; width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .hero h1 { font-weight: 800; font-size: 1.75rem; letter-spacing: -0.5px; }
+    .hero p { font-size: 0.95rem; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);
+      padding: 0.35rem 0.85rem; border-radius: 20px; font-size: 0.75rem;
+      font-weight: 600; color: rgba(255,255,255,0.9); margin-bottom: 1rem;
+    }
+
+    /* Main card */
     .main-card {
-      border: none;
-      border-radius: 16px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-      position: relative;
-      z-index: 1;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+      box-shadow: var(--shadow-lg); margin-top: -2.5rem; position: relative; z-index: 1;
     }
-    [data-bs-theme="dark"] .main-card { background: var(--brand-surface); border: 1px solid #2e3238; }
 
-    .section-label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--brand-green);
-      margin-bottom: 0.75rem;
+    /* Section headers */
+    .section-header {
+      display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border); cursor: pointer; user-select: none;
     }
-    [data-bs-theme="dark"] .section-label { color: #4ecca3; }
-
-    .form-label { font-weight: 500; font-size: 0.875rem; margin-bottom: 0.25rem; }
-    .input-group-text { background: var(--brand-green-light); color: var(--brand-green); font-weight: 600; border-color: #dee2e6; }
-    [data-bs-theme="dark"] .input-group-text { background: #2a3a30; color: #4ecca3; border-color: #3a3f47; }
-
-    .form-control:focus { border-color: var(--brand-green); box-shadow: 0 0 0 0.2rem rgba(0, 135, 81, 0.15); }
-    .btn-brand {
-      background: var(--brand-green);
-      border: none;
-      color: white;
-      padding: 0.65rem 2.5rem;
-      font-weight: 600;
-      border-radius: 8px;
-      transition: background 0.2s, transform 0.1s;
+    .section-header .section-icon {
+      width: 28px; height: 28px; border-radius: 8px; background: var(--brand-light);
+      color: var(--brand); display: flex; align-items: center; justify-content: center; font-size: 0.85rem;
     }
-    .btn-brand:hover { background: #006b41; color: white; transform: translateY(-1px); }
-    .btn-brand:active { transform: translateY(0); }
+    .section-header .section-title {
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px;
+      color: var(--text-muted); flex: 1;
+    }
+    .section-header .collapse-icon { color: var(--text-muted); transition: transform 0.3s; font-size: 0.85rem; }
+    .section-header.collapsed .collapse-icon { transform: rotate(-90deg); }
 
-    .footer { font-size: 0.8rem; color: #999; }
-    .footer a { color: var(--brand-green); text-decoration: none; }
+    /* Form styling */
+    .form-label { font-weight: 600; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem; letter-spacing: 0.3px; }
+    .input-group-text {
+      background: var(--brand-light); color: var(--brand); font-weight: 700;
+      border-color: var(--border); font-size: 0.9rem; min-width: 38px; justify-content: center;
+    }
+    .form-control {
+      border-color: var(--border); font-weight: 500; padding: 0.6rem 0.75rem;
+      font-size: 0.95rem; background: var(--surface);
+    }
+    .form-control::placeholder { color: var(--text-muted); font-weight: 400; opacity: 0.6; }
+    .form-control:focus {
+      border-color: var(--brand); background: var(--surface);
+      box-shadow: 0 0 0 3px rgba(0, 135, 81, 0.12);
+    }
+
+    /* Submit button */
+    .btn-calculate {
+      background: linear-gradient(135deg, #008751, #006b41);
+      border: none; color: white; padding: 0.75rem 3rem; font-weight: 700;
+      font-size: 1rem; border-radius: 12px; letter-spacing: 0.3px;
+      transition: all 0.2s; position: relative; overflow: hidden;
+    }
+    .btn-calculate:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,135,81,0.35); color: white; }
+    .btn-calculate:active { transform: translateY(0); }
+    .btn-calculate .spinner-border { display: none; width: 1.1rem; height: 1.1rem; border-width: 2px; }
+    .btn-calculate.loading .btn-text { visibility: hidden; }
+    .btn-calculate.loading .spinner-border { display: inline-block; position: absolute; }
+
+    /* Collapsible sections */
+    .section-body { overflow: hidden; transition: max-height 0.35s ease, opacity 0.25s ease; }
+    .section-body.collapsed { max-height: 0 !important; opacity: 0; margin-bottom: 0 !important; }
+
+    /* Footer */
+    .footer { color: var(--text-muted); font-size: 0.78rem; }
+    .footer a { color: var(--brand); text-decoration: none; }
+
+    /* Fade-in animation */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-up { animation: fadeUp 0.5s ease forwards; }
+    .fade-up-delay { animation: fadeUp 0.5s ease 0.15s forwards; opacity: 0; }
   </style>
 </head>
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-sm" style="background: var(--brand-green);">
-  <div class="container">
-    <a class="navbar-brand text-white d-flex align-items-center gap-2" href="/">
-      <i class="bi bi-calculator-fill fs-4"></i>
-      <span class="navbar-brand-text">Nigeria PIT Calculator</span>
+<nav class="top-nav py-2">
+  <div class="container d-flex align-items-center justify-content-between">
+    <a class="nav-brand d-flex align-items-center gap-2" href="/">
+      <i class="bi bi-calculator-fill"></i> Nigeria PIT Calculator
     </a>
-    <button class="btn btn-sm btn-outline-light" id="themeToggle" title="Toggle theme">
+    <button class="theme-toggle" id="themeToggle" title="Toggle theme">
       <i class="bi bi-moon-fill" id="themeIcon"></i>
     </button>
   </div>
 </nav>
 
 <!-- Hero -->
-<div class="hero-section text-center">
-  <div class="container">
-    <h1 class="h3 fw-bold mb-1">Compare Your Tax: Old vs New Law</h1>
-    <p class="mb-0 opacity-75">See how Nigeria's new PIT brackets affect your take-home pay</p>
+<div class="hero text-white text-center">
+  <div class="container position-relative" style="z-index:1;">
+    <div class="hero-badge"><i class="bi bi-shield-check"></i> Updated for 2024 Tax Law</div>
+    <h1 class="fade-up">Compare Your Tax: Old vs New Law</h1>
+    <p class="mb-0 opacity-75 fade-up-delay">See how Nigeria's new PIT brackets affect your take-home pay</p>
   </div>
 </div>
 
 <!-- Form Card -->
 <div class="container pb-5">
-  <div class="card main-card p-4 p-md-5 mx-auto" style="max-width:820px;">
-    <form method="post" novalidate>
+  <div class="main-card p-4 p-md-5 mx-auto fade-up" style="max-width:840px;">
+    <form method="post" novalidate id="taxForm">
 
-      <!-- Income -->
-      <div class="section-label"><i class="bi bi-cash-stack me-1"></i> Income</div>
+      <!-- Income Section -->
       <div class="mb-4">
-        <label class="form-label">Annual Gross Income</label>
-        <div class="input-group">
-          <span class="input-group-text">&#8358;</span>
-          <input class="form-control currency-input" name="annual_income" required placeholder="e.g. 7,023,000" inputmode="numeric">
+        <div class="section-header" data-target="incomeSection">
+          <span class="section-icon"><i class="bi bi-cash-stack"></i></span>
+          <span class="section-title">Income</span>
+        </div>
+        <div class="section-body" id="incomeSection">
+          <label class="form-label">Annual Gross Income</label>
+          <div class="input-group input-group-lg">
+            <span class="input-group-text">&#8358;</span>
+            <input class="form-control currency-input" name="annual_income" required placeholder="7,023,000" inputmode="numeric" autofocus>
+          </div>
         </div>
       </div>
 
       <!-- Monthly Deductions -->
-      <div class="section-label"><i class="bi bi-calendar-month me-1"></i> Monthly Deductions</div>
-      <div class="row g-3 mb-4">
-        <div class="col-md-6">
-          <label class="form-label">Pension</label>
-          <div class="input-group">
-            <span class="input-group-text">&#8358;</span>
-            <input class="form-control currency-input" name="pension" placeholder="e.g. 95,000" inputmode="numeric">
-          </div>
+      <div class="mb-4">
+        <div class="section-header" data-target="monthlySection">
+          <span class="section-icon"><i class="bi bi-calendar3"></i></span>
+          <span class="section-title">Monthly Deductions</span>
+          <i class="bi bi-chevron-down collapse-icon"></i>
         </div>
-        <div class="col-md-6">
-          <label class="form-label">Voluntary Pension</label>
-          <div class="input-group">
-            <span class="input-group-text">&#8358;</span>
-            <input class="form-control currency-input" name="voluntary_pension" placeholder="0" inputmode="numeric">
-          </div>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Health Insurance</label>
-          <div class="input-group">
-            <span class="input-group-text">&#8358;</span>
-            <input class="form-control currency-input" name="health" placeholder="0" inputmode="numeric">
-          </div>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Life Insurance</label>
-          <div class="input-group">
-            <span class="input-group-text">&#8358;</span>
-            <input class="form-control currency-input" name="life_insurance" placeholder="0" inputmode="numeric">
+        <div class="section-body" id="monthlySection">
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <label class="form-label">Pension</label>
+              <div class="input-group">
+                <span class="input-group-text">&#8358;</span>
+                <input class="form-control currency-input" name="pension" placeholder="95,000" inputmode="numeric">
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">Voluntary Pension</label>
+              <div class="input-group">
+                <span class="input-group-text">&#8358;</span>
+                <input class="form-control currency-input" name="voluntary_pension" placeholder="0" inputmode="numeric">
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">Health Insurance</label>
+              <div class="input-group">
+                <span class="input-group-text">&#8358;</span>
+                <input class="form-control currency-input" name="health" placeholder="0" inputmode="numeric">
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">Life Insurance</label>
+              <div class="input-group">
+                <span class="input-group-text">&#8358;</span>
+                <input class="form-control currency-input" name="life_insurance" placeholder="0" inputmode="numeric">
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Annual Deductions -->
-      <div class="section-label"><i class="bi bi-calendar-check me-1"></i> Annual Deductions</div>
-      <div class="row g-3 mb-4">
-        <div class="col-md-6">
-          <label class="form-label">Rent</label>
-          <div class="input-group">
-            <span class="input-group-text">&#8358;</span>
-            <input class="form-control currency-input" name="rent_annual" placeholder="e.g. 600,000" inputmode="numeric">
-          </div>
+      <div class="mb-4">
+        <div class="section-header" data-target="annualSection">
+          <span class="section-icon"><i class="bi bi-calendar-check"></i></span>
+          <span class="section-title">Annual Deductions</span>
+          <i class="bi bi-chevron-down collapse-icon"></i>
         </div>
-        <div class="col-md-6">
-          <label class="form-label">NHF</label>
-          <div class="input-group">
-            <span class="input-group-text">&#8358;</span>
-            <input class="form-control currency-input" name="nhf_annual" placeholder="0" inputmode="numeric">
-          </div>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">NHIS</label>
-          <div class="input-group">
-            <span class="input-group-text">&#8358;</span>
-            <input class="form-control currency-input" name="nhis_annual" placeholder="0" inputmode="numeric">
-          </div>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Interest on Owner-Occupied House</label>
-          <div class="input-group">
-            <span class="input-group-text">&#8358;</span>
-            <input class="form-control currency-input" name="interest_owner_annual" placeholder="0" inputmode="numeric">
+        <div class="section-body" id="annualSection">
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <label class="form-label">Rent</label>
+              <div class="input-group">
+                <span class="input-group-text">&#8358;</span>
+                <input class="form-control currency-input" name="rent_annual" placeholder="600,000" inputmode="numeric">
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">NHF</label>
+              <div class="input-group">
+                <span class="input-group-text">&#8358;</span>
+                <input class="form-control currency-input" name="nhf_annual" placeholder="0" inputmode="numeric">
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">NHIS</label>
+              <div class="input-group">
+                <span class="input-group-text">&#8358;</span>
+                <input class="form-control currency-input" name="nhis_annual" placeholder="0" inputmode="numeric">
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">Interest on Owner-Occupied House</label>
+              <div class="input-group">
+                <span class="input-group-text">&#8358;</span>
+                <input class="form-control currency-input" name="interest_owner_annual" placeholder="0" inputmode="numeric">
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="text-center mt-2">
-        <button class="btn btn-brand" type="submit">
-          <i class="bi bi-calculator me-1"></i> Calculate Tax
+      <!-- Submit -->
+      <div class="text-center pt-2">
+        <button class="btn btn-calculate" type="submit" id="calcBtn">
+          <span class="spinner-border spinner-border-sm text-light" role="status"></span>
+          <span class="btn-text"><i class="bi bi-lightning-charge-fill me-1"></i> Calculate Tax</span>
         </button>
       </div>
     </form>
@@ -178,34 +280,46 @@
 </div>
 
 <!-- Footer -->
-<footer class="footer text-center py-3">
+<footer class="footer text-center py-4">
   <p class="mb-0">Nigeria PIT Calculator &mdash; Compare old &amp; new personal income tax laws</p>
 </footer>
 
 <script>
-  // Theme toggle
+  // Theme toggle with persistence
   const html = document.documentElement;
-  const toggle = document.getElementById('themeToggle');
   const icon = document.getElementById('themeIcon');
   const saved = localStorage.getItem('theme');
-  if (saved) {
-    html.setAttribute('data-bs-theme', saved);
-    icon.className = saved === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
-  }
-  toggle.addEventListener('click', () => {
+  if (saved) { html.setAttribute('data-bs-theme', saved); icon.className = saved === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill'; }
+  document.getElementById('themeToggle').addEventListener('click', () => {
     const next = html.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
     html.setAttribute('data-bs-theme', next);
     icon.className = next === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
     localStorage.setItem('theme', next);
   });
 
-  // Auto-format currency inputs with commas
+  // Auto-format currency with commas
   document.querySelectorAll('.currency-input').forEach(el => {
     el.addEventListener('input', e => {
       let v = e.target.value.replace(/,/g, '').replace(/\s/g, '');
       if (v === '') { e.target.value = ''; return; }
       if (!isNaN(v)) e.target.value = Number(v).toLocaleString('en-NG');
     });
+  });
+
+  // Collapsible sections
+  document.querySelectorAll('.section-header[data-target]').forEach(header => {
+    header.addEventListener('click', () => {
+      const body = document.getElementById(header.dataset.target);
+      if (body) {
+        body.classList.toggle('collapsed');
+        header.classList.toggle('collapsed');
+      }
+    });
+  });
+
+  // Loading spinner on submit
+  document.getElementById('taxForm').addEventListener('submit', () => {
+    document.getElementById('calcBtn').classList.add('loading');
   });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

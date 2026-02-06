@@ -3,245 +3,371 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Results — Nigeria PIT Comparison</title>
+<title>Results — Nigeria PIT Calculator</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇳🇬</text></svg>">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --brand-green: #008751;
-    --brand-green-light: #e8f5ee;
-    --brand-dark: #1a1d23;
-    --brand-surface: #21252b;
-    --brand-surface-2: #282c34;
+    --brand: #008751; --brand-dark: #006b41; --brand-light: #e8f5ee;
+    --bg: #f0f2f5; --surface: #ffffff; --surface-2: #f8f9fa;
+    --text: #1a1d23; --text-muted: #6c757d; --border: #e2e5e9;
+    --red: #dc3545; --red-light: #fff5f5; --green-light: #f0faf4;
+    --shadow: 0 4px 24px rgba(0,0,0,0.06); --shadow-lg: 0 8px 40px rgba(0,0,0,0.1);
   }
-  body { background: #f0f2f5; transition: background 0.3s, color 0.3s; }
-  [data-bs-theme="dark"] body,
-  [data-bs-theme="dark"] { background: var(--brand-dark); }
-
-  .navbar-brand-text { font-weight: 700; letter-spacing: -0.5px; }
-  .main-card {
-    border: none; border-radius: 16px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  [data-bs-theme="dark"] {
+    --bg: #0f1117; --surface: #1a1d25; --surface-2: #22252e;
+    --text: #e4e6ea; --text-muted: #8b8fa3; --border: #2a2d37;
+    --red-light: #2a1f22; --green-light: #1a2e22;
+    --shadow: 0 4px 24px rgba(0,0,0,0.2); --shadow-lg: 0 8px 40px rgba(0,0,0,0.3);
+    --brand-light: #1a3328;
   }
-  [data-bs-theme="dark"] .main-card { background: var(--brand-surface); border: 1px solid #2e3238; }
 
+  * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+  body { background: var(--bg); color: var(--text); transition: all 0.3s ease; }
+
+  /* Navbar */
+  .top-nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+  .nav-brand { font-weight: 800; font-size: 1.1rem; color: var(--brand); text-decoration: none; }
+  .nav-brand:hover { color: var(--brand-dark); }
+  .theme-toggle {
+    width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--surface-2); color: var(--text); display: flex; align-items: center;
+    justify-content: center; cursor: pointer; transition: all 0.2s;
+  }
+  .theme-toggle:hover { background: var(--brand-light); color: var(--brand); border-color: var(--brand); }
+
+  /* Main card */
+  .main-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; box-shadow: var(--shadow-lg); }
+  [data-bs-theme="dark"] .main-card { border-color: var(--border); }
+
+  /* Section label */
   .section-label {
-    font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
-    letter-spacing: 1px; color: var(--brand-green); margin-bottom: 0.75rem;
+    font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px;
+    color: var(--text-muted); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.4rem;
   }
-  [data-bs-theme="dark"] .section-label { color: #4ecca3; }
+  .section-label i { color: var(--brand); }
 
-  /* Summary stat cards */
-  .stat-card {
-    border-radius: 12px; padding: 1.25rem; position: relative; overflow: hidden;
+  /* Monthly pay hero */
+  .pay-hero {
+    background: linear-gradient(135deg, #008751 0%, #005c38 50%, #003d25 100%);
+    border-radius: 16px; padding: 1.75rem; color: white; position: relative; overflow: hidden;
   }
-  .stat-card::before {
-    content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+  .pay-hero::before {
+    content: ''; position: absolute; top: -30%; right: -10%; width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%); border-radius: 50%;
   }
-  .stat-card.old { background: #fff5f5; }
-  .stat-card.old::before { background: #dc3545; }
-  .stat-card.new { background: #f0faf4; }
-  .stat-card.new::before { background: var(--brand-green); }
-  [data-bs-theme="dark"] .stat-card.old { background: #2a2025; }
-  [data-bs-theme="dark"] .stat-card.new { background: #1e2a22; }
-
-  .stat-card .stat-label { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
-  .stat-card .stat-value { font-size: 1.1rem; font-weight: 700; margin-top: 0.15rem; }
+  .pay-hero .pay-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
+  .pay-hero .pay-amount { font-size: 2.2rem; font-weight: 800; letter-spacing: -1px; line-height: 1.1; }
+  .pay-hero .pay-sub { font-size: 0.8rem; opacity: 0.7; }
+  .pay-compare {
+    display: flex; gap: 0.5rem; align-items: center; margin-top: 0.75rem;
+    padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.15);
+  }
+  .pay-compare .old-pay { font-size: 0.85rem; opacity: 0.6; text-decoration: line-through; }
+  .pay-compare .badge-savings {
+    background: rgba(255,255,255,0.2); padding: 0.2rem 0.6rem; border-radius: 20px;
+    font-size: 0.75rem; font-weight: 700;
+  }
 
   /* Savings banner */
-  .savings-banner {
-    background: linear-gradient(135deg, var(--brand-green), #005c38);
-    color: white; border-radius: 12px; padding: 1.25rem 1.5rem;
+  .savings-card {
+    border-radius: 14px; padding: 1.25rem 1.5rem;
     display: flex; align-items: center; gap: 1rem;
+    background: var(--green-light); border: 1px solid rgba(0, 135, 81, 0.15);
   }
-  .savings-banner .savings-amount { font-size: 1.5rem; font-weight: 800; }
-  .savings-banner .savings-label { font-size: 0.85rem; opacity: 0.85; }
-  .savings-banner .savings-icon { font-size: 2rem; opacity: 0.8; }
-  .savings-banner.negative {
-    background: linear-gradient(135deg, #dc3545, #a71d2a);
+  .savings-card.negative { background: var(--red-light); border-color: rgba(220, 53, 69, 0.15); }
+  .savings-card .savings-icon {
+    width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center;
+    justify-content: center; font-size: 1.4rem; flex-shrink: 0;
+    background: rgba(0, 135, 81, 0.12); color: var(--brand);
   }
+  .savings-card.negative .savings-icon { background: rgba(220, 53, 69, 0.12); color: var(--red); }
+  .savings-card .savings-amount { font-size: 1.4rem; font-weight: 800; color: var(--brand); }
+  .savings-card.negative .savings-amount { color: var(--red); }
+  .savings-card .savings-label { font-size: 0.8rem; color: var(--text-muted); }
 
-  /* Tables */
-  .breakdown-table thead th {
-    background: var(--brand-green); color: white; font-weight: 600;
-    font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;
+  /* Stat cards */
+  .stat-card { border-radius: 14px; padding: 1.25rem; border: 1px solid var(--border); background: var(--surface); transition: transform 0.2s, box-shadow 0.2s; }
+  .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+  .stat-card .card-header-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
+  .stat-card .card-icon {
+    width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center;
+    justify-content: center; font-size: 0.9rem;
   }
-  .breakdown-table.old thead th { background: #dc3545; }
-  .breakdown-table tbody td { font-size: 0.9rem; }
-  .breakdown-table tfoot td { font-weight: 700; background: #f8f9fa; }
-  [data-bs-theme="dark"] .breakdown-table tfoot td { background: var(--brand-surface-2); }
+  .stat-card.old .card-icon { background: var(--red-light); color: var(--red); }
+  .stat-card.new .card-icon { background: var(--green-light); color: var(--brand); }
+  .stat-card .card-title { font-weight: 700; font-size: 0.9rem; }
+  .stat-card.old .card-title { color: var(--red); }
+  .stat-card.new .card-title { color: var(--brand); }
 
-  /* Chart */
-  .chart-area { max-width: 700px; margin: 0 auto; }
+  .stat-row { display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid var(--border); }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-row .stat-key { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; }
+  .stat-row .stat-val { font-size: 0.85rem; font-weight: 700; }
 
-  /* Buttons */
-  .btn-brand { background: var(--brand-green); border: none; color: white; font-weight: 600; border-radius: 8px; }
-  .btn-brand:hover { background: #006b41; color: white; }
+  /* Effective rate badge */
+  .rate-badge {
+    display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.3rem 0.65rem;
+    border-radius: 8px; font-size: 0.75rem; font-weight: 700;
+  }
+  .rate-badge.old { background: var(--red-light); color: var(--red); }
+  .rate-badge.new { background: var(--green-light); color: var(--brand); }
 
-  .footer { font-size: 0.8rem; color: #999; }
+  /* Deductions summary */
+  .deduction-chip {
+    display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.3rem 0.7rem;
+    border-radius: 8px; font-size: 0.78rem; font-weight: 600;
+    background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
+  }
+  .deduction-chip .chip-amount { color: var(--brand); font-weight: 700; }
+
+  /* Charts */
+  .chart-area { max-width: 100%; }
+  .chart-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; }
+
+  /* Bracket visualization */
+  .bracket-bar {
+    display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .bracket-bar:last-child { border-bottom: none; }
+  .bracket-rate {
+    min-width: 48px; text-align: center; padding: 0.2rem 0.5rem; border-radius: 6px;
+    font-size: 0.72rem; font-weight: 700;
+  }
+  .bracket-rate.old { background: var(--red-light); color: var(--red); }
+  .bracket-rate.new { background: var(--green-light); color: var(--brand); }
+  .bracket-fill-track { flex: 1; height: 24px; background: var(--surface-2); border-radius: 6px; overflow: hidden; position: relative; }
+  .bracket-fill {
+    height: 100%; border-radius: 6px; display: flex; align-items: center;
+    padding: 0 0.5rem; font-size: 0.7rem; font-weight: 600; color: white;
+    min-width: fit-content; transition: width 0.8s ease;
+  }
+  .bracket-fill.old { background: linear-gradient(90deg, #dc3545, #e06070); }
+  .bracket-fill.new { background: linear-gradient(90deg, #008751, #2ba070); }
+  .bracket-tax { min-width: 85px; text-align: right; font-size: 0.78rem; font-weight: 600; color: var(--text-muted); }
+
+  /* Sticky actions */
+  .sticky-actions {
+    position: sticky; bottom: 0; background: var(--surface); border-top: 1px solid var(--border);
+    padding: 0.75rem 1.5rem; margin: 0 -1.5rem -1.5rem; border-radius: 0 0 20px 20px;
+    z-index: 10;
+  }
+  @media (min-width: 768px) { .sticky-actions { margin: 0 -2.5rem -2.5rem; padding: 1rem 2.5rem; } }
+
+  .btn-action {
+    border-radius: 10px; font-weight: 600; font-size: 0.85rem; padding: 0.55rem 1.25rem;
+    transition: all 0.2s;
+  }
+  .btn-action:hover { transform: translateY(-1px); }
+  .btn-brand { background: var(--brand); border-color: var(--brand); color: white; }
+  .btn-brand:hover { background: var(--brand-dark); color: white; }
+
+  .footer { color: var(--text-muted); font-size: 0.78rem; }
+
+  /* Animations */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes countUp { from { opacity: 0; } to { opacity: 1; } }
+  .fade-up { animation: fadeUp 0.5s ease forwards; }
+  .fade-up-1 { animation: fadeUp 0.5s ease 0.1s forwards; opacity: 0; }
+  .fade-up-2 { animation: fadeUp 0.5s ease 0.2s forwards; opacity: 0; }
+  .fade-up-3 { animation: fadeUp 0.5s ease 0.3s forwards; opacity: 0; }
+  .fade-up-4 { animation: fadeUp 0.5s ease 0.4s forwards; opacity: 0; }
 </style>
 </head>
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-sm" style="background: var(--brand-green);">
-  <div class="container">
-    <a class="navbar-brand text-white d-flex align-items-center gap-2" href="/">
-      <i class="bi bi-calculator-fill fs-4"></i>
-      <span class="navbar-brand-text">Nigeria PIT Calculator</span>
+<nav class="top-nav py-2">
+  <div class="container d-flex align-items-center justify-content-between">
+    <a class="nav-brand d-flex align-items-center gap-2" href="/">
+      <i class="bi bi-calculator-fill"></i> Nigeria PIT Calculator
     </a>
-    <button class="btn btn-sm btn-outline-light" id="themeToggle" title="Toggle theme">
+    <button class="theme-toggle" id="themeToggle" title="Toggle theme">
       <i class="bi bi-moon-fill" id="themeIcon"></i>
     </button>
   </div>
 </nav>
 
 <div class="container py-4 pb-5">
-  <div class="card main-card p-4 p-md-5 mx-auto" style="max-width:920px;">
+  <div class="main-card p-4 p-md-5 mx-auto" style="max-width:960px;">
 
-    <!-- Header -->
-    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <!-- Header row -->
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2 fade-up">
       <div>
-        <h4 class="fw-bold mb-1">Tax Comparison Results</h4>
-        <p class="text-body-secondary mb-0">Annual Gross Income: <strong>{{ format_amount(annual_income) }}</strong></p>
+        <h4 class="fw-bold mb-0" style="letter-spacing:-0.5px;">Tax Comparison Results</h4>
+        <p class="text-body-secondary mb-0" style="font-size:0.85rem;">
+          Gross Income: <strong>{{ format_amount(annual_income) }}</strong>
+        </p>
       </div>
-      <a href="/" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i> New Calculation</a>
+      <a href="/" class="btn btn-outline-secondary btn-action btn-sm">
+        <i class="bi bi-arrow-left me-1"></i> New Calculation
+      </a>
     </div>
 
-    <!-- Savings Banner -->
-    {% set savings = tax_old - tax_new %}
-    <div class="savings-banner {{ 'negative' if savings < 0 else '' }} mb-4">
-      <i class="bi {{ 'bi-graph-down-arrow' if savings < 0 else 'bi-piggy-bank-fill' }} savings-icon"></i>
-      <div>
-        <div class="savings-amount">{{ format_amount(savings|abs) }}</div>
-        <div class="savings-label">
-          {% if savings > 0 %}
-            You <strong>save</strong> per year under the new law
-          {% elif savings < 0 %}
-            You pay <strong>more</strong> per year under the new law
-          {% else %}
-            No difference between old and new law
-          {% endif %}
+    <!-- Monthly Take-Home Pay (what people care about most) -->
+    <div class="pay-hero mb-4 fade-up-1">
+      <div class="row align-items-center">
+        <div class="col-md-7">
+          <div class="pay-label">Your Monthly Take-Home Pay (New Law)</div>
+          <div class="pay-amount" data-count="{{ net_monthly_new }}">{{ format_amount(net_monthly_new) }}</div>
+          <div class="pay-sub">per month after tax</div>
+          <div class="pay-compare">
+            <span class="old-pay">{{ format_amount(net_monthly_old) }} (old)</span>
+            {% if savings > 0 %}
+            <span class="badge-savings">+{{ format_amount(savings / 12) }}/mo</span>
+            {% elif savings < 0 %}
+            <span class="badge-savings">{{ format_amount(savings / 12) }}/mo</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="col-md-5 text-center d-none d-md-block">
+          <canvas id="donutChart" width="180" height="180"></canvas>
         </div>
       </div>
     </div>
 
-    <!-- Summary Cards -->
-    <div class="section-label"><i class="bi bi-bar-chart-line me-1"></i> Summary</div>
-    <div class="row g-3 mb-4">
+    <!-- Savings & Effective Rates -->
+    <div class="row g-3 mb-4 fade-up-2">
+      <div class="col-md-6">
+        <div class="savings-card {{ 'negative' if savings < 0 else '' }}">
+          <div class="savings-icon">
+            <i class="bi {{ 'bi-graph-down-arrow' if savings < 0 else 'bi-piggy-bank-fill' }}"></i>
+          </div>
+          <div>
+            <div class="savings-amount" data-count="{{ savings|abs }}">{{ format_amount(savings|abs) }}</div>
+            <div class="savings-label">
+              {% if savings > 0 %}Annual savings under new law
+              {% elif savings < 0 %}Extra annual cost under new law
+              {% else %}No difference between laws{% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="d-flex flex-column gap-2 h-100 justify-content-center">
+          <div class="d-flex align-items-center justify-content-between">
+            <span style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">Effective Tax Rate</span>
+          </div>
+          <div class="d-flex gap-2">
+            <span class="rate-badge old"><i class="bi bi-circle-fill" style="font-size:0.5rem;"></i> Old: {{ "%.1f"|format(effective_rate_old) }}%</span>
+            <span class="rate-badge new"><i class="bi bi-circle-fill" style="font-size:0.5rem;"></i> New: {{ "%.1f"|format(effective_rate_new) }}%</span>
+          </div>
+          <div style="height:6px; background:var(--surface-2); border-radius:3px; overflow:hidden; display:flex;">
+            <div style="width:{{ effective_rate_old }}%; background:var(--red); border-radius:3px; transition:width 1s ease;" title="Old law rate"></div>
+          </div>
+          <div style="height:6px; background:var(--surface-2); border-radius:3px; overflow:hidden; display:flex;">
+            <div style="width:{{ effective_rate_new }}%; background:var(--brand); border-radius:3px; transition:width 1s ease;" title="New law rate"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Deductions Applied -->
+    <div class="section-label fade-up-2"><i class="bi bi-receipt-cutoff"></i> Deductions Applied</div>
+    <div class="d-flex flex-wrap gap-2 mb-4 fade-up-2">
+      {% if pension_annual > 0 %}<span class="deduction-chip"><i class="bi bi-shield-check"></i> Pension <span class="chip-amount">{{ format_amount(pension_annual) }}</span></span>{% endif %}
+      {% if voluntary_pension_annual > 0 %}<span class="deduction-chip"><i class="bi bi-shield-plus"></i> Vol. Pension <span class="chip-amount">{{ format_amount(voluntary_pension_annual) }}</span></span>{% endif %}
+      {% if health_annual > 0 %}<span class="deduction-chip"><i class="bi bi-heart-pulse"></i> Health <span class="chip-amount">{{ format_amount(health_annual) }}</span></span>{% endif %}
+      {% if life_insurance_annual > 0 %}<span class="deduction-chip"><i class="bi bi-umbrella"></i> Life Ins. <span class="chip-amount">{{ format_amount(life_insurance_annual) }}</span></span>{% endif %}
+      {% if rent_annual > 0 %}<span class="deduction-chip"><i class="bi bi-house"></i> Rent <span class="chip-amount">{{ format_amount(rent_annual) }}</span></span>{% endif %}
+      {% if nhf_annual > 0 %}<span class="deduction-chip"><i class="bi bi-building"></i> NHF <span class="chip-amount">{{ format_amount(nhf_annual) }}</span></span>{% endif %}
+      {% if nhis_annual > 0 %}<span class="deduction-chip"><i class="bi bi-hospital"></i> NHIS <span class="chip-amount">{{ format_amount(nhis_annual) }}</span></span>{% endif %}
+      {% if interest_owner_annual > 0 %}<span class="deduction-chip"><i class="bi bi-key"></i> Mortgage Int. <span class="chip-amount">{{ format_amount(interest_owner_annual) }}</span></span>{% endif %}
+      <span class="deduction-chip" style="border-color:var(--red); background:var(--red-light);"><i class="bi bi-calculator"></i> CRA (Old) <span class="chip-amount" style="color:var(--red);">{{ format_amount(cra) }}</span></span>
+      <span class="deduction-chip" style="border-color:var(--brand); background:var(--green-light);"><i class="bi bi-house-check"></i> Rent Relief (New) <span class="chip-amount">{{ format_amount(rent_relief) }}</span></span>
+    </div>
+
+    <!-- Summary Cards Side by Side -->
+    <div class="section-label fade-up-3"><i class="bi bi-bar-chart-line"></i> Detailed Comparison</div>
+    <div class="row g-3 mb-4 fade-up-3">
       <div class="col-md-6">
         <div class="stat-card old">
-          <div class="d-flex align-items-center gap-2 mb-3">
-            <i class="bi bi-file-earmark-text text-danger"></i>
-            <strong class="text-danger">Old Law</strong>
+          <div class="card-header-row">
+            <span class="card-icon"><i class="bi bi-file-earmark-text"></i></span>
+            <span class="card-title">Old Law</span>
+            <span class="rate-badge old ms-auto" style="font-size:0.7rem;">{{ "%.1f"|format(effective_rate_old) }}%</span>
           </div>
-          <div class="row g-2">
-            <div class="col-6">
-              <div class="stat-label">Taxable Income</div>
-              <div class="stat-value">{{ format_amount(taxable_old) }}</div>
-            </div>
-            <div class="col-6">
-              <div class="stat-label">Total Tax</div>
-              <div class="stat-value text-danger">{{ format_amount(tax_old) }}</div>
-            </div>
-            <div class="col-6">
-              <div class="stat-label">Net Annual</div>
-              <div class="stat-value">{{ format_amount(net_annual_old) }}</div>
-            </div>
-            <div class="col-6">
-              <div class="stat-label">Net Monthly</div>
-              <div class="stat-value">{{ format_amount(net_monthly_old) }}</div>
-            </div>
-          </div>
+          <div class="stat-row"><span class="stat-key">Total Deductions</span><span class="stat-val">{{ format_amount(total_deductions_old) }}</span></div>
+          <div class="stat-row"><span class="stat-key">Taxable Income</span><span class="stat-val">{{ format_amount(taxable_old) }}</span></div>
+          <div class="stat-row"><span class="stat-key">Total Tax</span><span class="stat-val" style="color:var(--red);">{{ format_amount(tax_old) }}</span></div>
+          <div class="stat-row"><span class="stat-key">Net Annual</span><span class="stat-val">{{ format_amount(net_annual_old) }}</span></div>
+          <div class="stat-row"><span class="stat-key">Net Monthly</span><span class="stat-val" style="font-size:1rem;">{{ format_amount(net_monthly_old) }}</span></div>
         </div>
       </div>
       <div class="col-md-6">
         <div class="stat-card new">
-          <div class="d-flex align-items-center gap-2 mb-3">
-            <i class="bi bi-file-earmark-check text-success"></i>
-            <strong class="text-success">New Law</strong>
+          <div class="card-header-row">
+            <span class="card-icon"><i class="bi bi-file-earmark-check"></i></span>
+            <span class="card-title">New Law</span>
+            <span class="rate-badge new ms-auto" style="font-size:0.7rem;">{{ "%.1f"|format(effective_rate_new) }}%</span>
           </div>
-          <div class="row g-2">
-            <div class="col-6">
-              <div class="stat-label">Taxable Income</div>
-              <div class="stat-value">{{ format_amount(taxable_new) }}</div>
-            </div>
-            <div class="col-6">
-              <div class="stat-label">Total Tax</div>
-              <div class="stat-value text-success">{{ format_amount(tax_new) }}</div>
-            </div>
-            <div class="col-6">
-              <div class="stat-label">Net Annual</div>
-              <div class="stat-value">{{ format_amount(net_annual_new) }}</div>
-            </div>
-            <div class="col-6">
-              <div class="stat-label">Net Monthly</div>
-              <div class="stat-value">{{ format_amount(net_monthly_new) }}</div>
-            </div>
-          </div>
+          <div class="stat-row"><span class="stat-key">Total Deductions</span><span class="stat-val">{{ format_amount(total_deductions_new) }}</span></div>
+          <div class="stat-row"><span class="stat-key">Taxable Income</span><span class="stat-val">{{ format_amount(taxable_new) }}</span></div>
+          <div class="stat-row"><span class="stat-key">Total Tax</span><span class="stat-val" style="color:var(--brand);">{{ format_amount(tax_new) }}</span></div>
+          <div class="stat-row"><span class="stat-key">Net Annual</span><span class="stat-val">{{ format_amount(net_annual_new) }}</span></div>
+          <div class="stat-row"><span class="stat-key">Net Monthly</span><span class="stat-val" style="font-size:1rem;">{{ format_amount(net_monthly_new) }}</span></div>
         </div>
       </div>
     </div>
 
-    <!-- Chart -->
-    <div class="section-label"><i class="bi bi-bar-chart-fill me-1"></i> Visual Comparison</div>
-    <div class="chart-area mb-4">
-      <canvas id="compareChart"></canvas>
+    <!-- Bar Chart -->
+    <div class="section-label fade-up-3"><i class="bi bi-bar-chart-fill"></i> Visual Comparison</div>
+    <div class="chart-card mb-4 fade-up-3">
+      <canvas id="compareChart" height="220"></canvas>
     </div>
 
-    <!-- Breakdown Tables -->
-    <div class="section-label"><i class="bi bi-table me-1"></i> Tax Bracket Breakdown</div>
-    <div class="row g-3 mb-4">
+    <!-- Bracket Breakdown (visual bars) -->
+    <div class="section-label fade-up-4"><i class="bi bi-layers"></i> Tax Bracket Breakdown</div>
+    <div class="row g-3 mb-4 fade-up-4">
       <div class="col-md-6">
-        <h6 class="fw-bold text-danger mb-2"><i class="bi bi-caret-right-fill me-1"></i>Old Law</h6>
-        <div class="table-responsive">
-          <table class="table table-sm table-bordered text-center breakdown-table old mb-0">
-            <thead>
-              <tr><th>Band (&#8358;)</th><th>Rate</th><th>Tax (&#8358;)</th></tr>
-            </thead>
-            <tbody>
-              {% for amt, rate, tax in breakdown_old %}
-              <tr>
-                <td>{{ format_amount(amt) }}</td>
-                <td>{{ (rate*100)|round(2) }}%</td>
-                <td>{{ format_amount(tax) }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-            <tfoot>
-              <tr><td colspan="2"><strong>Total Tax</strong></td><td><strong>{{ format_amount(tax_old) }}</strong></td></tr>
-            </tfoot>
-          </table>
+        <div class="chart-card">
+          <h6 class="fw-bold mb-3" style="font-size:0.85rem; color:var(--red);"><i class="bi bi-caret-right-fill me-1"></i>Old Law Brackets</h6>
+          {% for amt, rate, tax in breakdown_old %}
+          <div class="bracket-bar">
+            <span class="bracket-rate old">{{ (rate*100)|round(0)|int }}%</span>
+            <div class="bracket-fill-track">
+              <div class="bracket-fill old" style="width: 0%;" data-width="{{ (tax / tax_old * 100) if tax_old else 0 }}%">
+                {{ format_amount(amt) }}
+              </div>
+            </div>
+            <span class="bracket-tax">{{ format_amount(tax) }}</span>
+          </div>
+          {% endfor %}
+          <div class="d-flex justify-content-between mt-2 pt-2" style="border-top:2px solid var(--red);">
+            <span style="font-size:0.8rem; font-weight:700; color:var(--red);">Total Tax</span>
+            <span style="font-size:0.85rem; font-weight:800; color:var(--red);">{{ format_amount(tax_old) }}</span>
+          </div>
         </div>
       </div>
       <div class="col-md-6">
-        <h6 class="fw-bold text-success mb-2"><i class="bi bi-caret-right-fill me-1"></i>New Law</h6>
-        <div class="table-responsive">
-          <table class="table table-sm table-bordered text-center breakdown-table mb-0">
-            <thead>
-              <tr><th>Band (&#8358;)</th><th>Rate</th><th>Tax (&#8358;)</th></tr>
-            </thead>
-            <tbody>
-              {% for amt, rate, tax in breakdown_new %}
-              <tr>
-                <td>{{ format_amount(amt) }}</td>
-                <td>{{ (rate*100)|round(2) }}%</td>
-                <td>{{ format_amount(tax) }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-            <tfoot>
-              <tr><td colspan="2"><strong>Total Tax</strong></td><td><strong>{{ format_amount(tax_new) }}</strong></td></tr>
-            </tfoot>
-          </table>
+        <div class="chart-card">
+          <h6 class="fw-bold mb-3" style="font-size:0.85rem; color:var(--brand);"><i class="bi bi-caret-right-fill me-1"></i>New Law Brackets</h6>
+          {% for amt, rate, tax in breakdown_new %}
+          <div class="bracket-bar">
+            <span class="bracket-rate new">{{ (rate*100)|round(0)|int }}%</span>
+            <div class="bracket-fill-track">
+              <div class="bracket-fill new" style="width: 0%;" data-width="{{ (tax / tax_new * 100) if tax_new else 0 }}%">
+                {{ format_amount(amt) }}
+              </div>
+            </div>
+            <span class="bracket-tax">{{ format_amount(tax) }}</span>
+          </div>
+          {% endfor %}
+          <div class="d-flex justify-content-between mt-2 pt-2" style="border-top:2px solid var(--brand);">
+            <span style="font-size:0.8rem; font-weight:700; color:var(--brand);">Total Tax</span>
+            <span style="font-size:0.85rem; font-weight:800; color:var(--brand);">{{ format_amount(tax_new) }}</span>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Action Buttons -->
-    <div class="d-flex justify-content-center gap-2 flex-wrap">
-      <button id="downloadChartBtn" class="btn btn-outline-primary">
-        <i class="bi bi-image me-1"></i> Download Chart
+    <!-- Sticky Action Buttons -->
+    <div class="sticky-actions d-flex justify-content-center gap-2 flex-wrap">
+      <button id="downloadChartBtn" class="btn btn-outline-secondary btn-action">
+        <i class="bi bi-image me-1"></i> Chart PNG
       </button>
       <form id="pdfForm" action="/download_pdf" method="post" style="display:inline;">
         <input type="hidden" name="annual_income" value="{{ annual_income }}">
@@ -254,60 +380,79 @@
         <input type="hidden" name="chart_image" id="chart_image">
         <input type="hidden" name="breakdown_old" id="breakdown_old">
         <input type="hidden" name="breakdown_new" id="breakdown_new">
-        <button type="submit" class="btn btn-brand">
+        <button type="submit" class="btn btn-brand btn-action">
           <i class="bi bi-file-earmark-pdf me-1"></i> Download PDF
         </button>
       </form>
+      <a href="/" class="btn btn-outline-secondary btn-action">
+        <i class="bi bi-arrow-counterclockwise me-1"></i> Recalculate
+      </a>
     </div>
 
   </div>
 </div>
 
-<!-- Footer -->
-<footer class="footer text-center py-3">
+<footer class="footer text-center py-4">
   <p class="mb-0">Nigeria PIT Calculator &mdash; Compare old &amp; new personal income tax laws</p>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// Chart
-const ctx = document.getElementById('compareChart');
-const compareChart = new Chart(ctx, {
+// --- Bar Chart ---
+const compareChart = new Chart(document.getElementById('compareChart'), {
   type: 'bar',
   data: {
-    labels: ['Total Tax', 'Net Annual Income'],
+    labels: ['Total Tax', 'Net Annual Income', 'Net Monthly Income'],
     datasets: [
-      {
-        label: 'Old Law',
-        data: [{{ tax_old }}, {{ net_annual_old }}],
-        backgroundColor: ['rgba(220, 53, 69, 0.8)', 'rgba(220, 53, 69, 0.5)'],
-        borderColor: ['#dc3545', '#dc3545'],
-        borderWidth: 1, borderRadius: 6
-      },
-      {
-        label: 'New Law',
-        data: [{{ tax_new }}, {{ net_annual_new }}],
-        backgroundColor: ['rgba(0, 135, 81, 0.8)', 'rgba(0, 135, 81, 0.5)'],
-        borderColor: ['#008751', '#008751'],
-        borderWidth: 1, borderRadius: 6
-      }
+      { label: 'Old Law', data: [{{ tax_old }}, {{ net_annual_old }}, {{ net_monthly_old }}],
+        backgroundColor: 'rgba(220, 53, 69, 0.75)', borderColor: '#dc3545', borderWidth: 1, borderRadius: 8 },
+      { label: 'New Law', data: [{{ tax_new }}, {{ net_annual_new }}, {{ net_monthly_new }}],
+        backgroundColor: 'rgba(0, 135, 81, 0.75)', borderColor: '#008751', borderWidth: 1, borderRadius: 8 }
     ]
   },
   options: {
-    responsive: true,
-    plugins: {
-      legend: { position: 'top' }
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: { callback: v => '\u20A6' + v.toLocaleString() }
-      }
+    responsive: true, maintainAspectRatio: true,
+    plugins: { legend: { position: 'top', labels: { usePointStyle: true, padding: 16, font: { family: 'Inter', weight: 600 } } } },
+    scales: { y: { beginAtZero: true, ticks: { callback: v => '\u20A6' + v.toLocaleString(), font: { family: 'Inter' } }, grid: { color: 'rgba(0,0,0,0.05)' } }, x: { grid: { display: false }, ticks: { font: { family: 'Inter', weight: 600 } } } }
+  }
+});
+
+// --- Donut Chart (Tax vs Take-Home under new law) ---
+new Chart(document.getElementById('donutChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Tax', 'Take-Home'],
+    datasets: [{ data: [{{ tax_new }}, {{ net_annual_new }}], backgroundColor: ['rgba(255,255,255,0.25)', 'rgba(255,255,255,0.8)'], borderWidth: 0 }]
+  },
+  options: {
+    responsive: false, cutout: '70%',
+    plugins: { legend: { display: false },
+      tooltip: { callbacks: { label: ctx => '\u20A6' + ctx.parsed.toLocaleString() } }
     }
   }
 });
 
-// Download chart as PNG
+// --- Animated bracket bars ---
+setTimeout(() => {
+  document.querySelectorAll('.bracket-fill').forEach(bar => { bar.style.width = bar.dataset.width; });
+}, 200);
+
+// --- Animated counter ---
+document.querySelectorAll('[data-count]').forEach(el => {
+  const target = parseFloat(el.dataset.count);
+  const duration = 1200;
+  const start = performance.now();
+  const formatter = new Intl.NumberFormat('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  function tick(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = '\u20A6' + formatter.format(target * eased);
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+});
+
+// --- Download chart ---
 document.getElementById('downloadChartBtn').addEventListener('click', () => {
   const link = document.createElement('a');
   link.href = compareChart.toBase64Image();
@@ -315,23 +460,19 @@ document.getElementById('downloadChartBtn').addEventListener('click', () => {
   link.click();
 });
 
-// PDF form submission
+// --- PDF form ---
 document.getElementById('pdfForm').addEventListener('submit', () => {
   document.getElementById('chart_image').value = compareChart.toBase64Image();
   document.getElementById('breakdown_old').value = JSON.stringify({{ breakdown_old|tojson }});
   document.getElementById('breakdown_new').value = JSON.stringify({{ breakdown_new|tojson }});
 });
 
-// Theme toggle (synced with index page)
+// --- Theme toggle ---
 const html = document.documentElement;
-const toggle = document.getElementById('themeToggle');
 const icon = document.getElementById('themeIcon');
 const saved = localStorage.getItem('theme');
-if (saved) {
-  html.setAttribute('data-bs-theme', saved);
-  icon.className = saved === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
-}
-toggle.addEventListener('click', () => {
+if (saved) { html.setAttribute('data-bs-theme', saved); icon.className = saved === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill'; }
+document.getElementById('themeToggle').addEventListener('click', () => {
   const next = html.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
   html.setAttribute('data-bs-theme', next);
   icon.className = next === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
