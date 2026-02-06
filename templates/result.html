@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Results — Nigeria PIT Comparison</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+body.light { background:#f5f7fa; color:#000; }
+body.dark { background:#1e1e2f; color:#fff; }
+.card { border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.06);}
+.card.dark { background:#2a2a40;}
+.chart-area { max-width:760px; margin:20px auto; }
+.toggle-btn { cursor:pointer; }
+.table thead th { background-color: #007bff; color:#fff; }
+.table-dark thead th { background-color:#2a2a40; color:#fff; }
+</style>
+</head>
+<body class="light">
+<div class="container py-4">
+  <div class="d-flex justify-content-end mb-2">
+    <span class="toggle-btn btn btn-outline-secondary">Toggle Light/Dark</span>
+  </div>
+
+  <div class="card p-4 mx-auto" style="max-width:900px;">
+    <h3 class="text-primary">Nigeria PIT Comparison — Old vs New</h3>
+
+    <div class="row g-3 mt-3">
+      <div class="col-md-6">
+        <div class="p-3 bg-white rounded">
+          <h5 class="text-danger">Old Law</h5>
+          <p><strong>Taxable Income:</strong> {{ format_amount(taxable_old) }}</p>
+          <p><strong>Total Tax:</strong> {{ format_amount(tax_old) }}</p>
+          <p><strong>Net Annual:</strong> {{ format_amount(net_annual_old) }}</p>
+          <p><strong>Net Monthly:</strong> {{ format_amount(net_monthly_old) }}</p>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="p-3 bg-white rounded">
+          <h5 class="text-success">New Law</h5>
+          <p><strong>Rent Relief:</strong> {{ format_amount(rent_relief) }}</p>
+          <p><strong>Taxable Income:</strong> {{ format_amount(taxable_new) }}</p>
+          <p><strong>Total Tax:</strong> {{ format_amount(tax_new) }}</p>
+          <p><strong>Net Annual:</strong> {{ format_amount(net_annual_new) }}</p>
+          <p><strong>Net Monthly:</strong> {{ format_amount(net_monthly_new) }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-area mt-4">
+      <canvas id="compareChart"></canvas>
+    </div>
+
+    <!-- Detailed Breakdown Tables -->
+    <div class="mt-4">
+      <h4>Detailed Tax Breakdown per Band</h4>
+      <div class="row">
+        <div class="col-md-6">
+          <h5 class="text-danger">Old Law</h5>
+          <table class="table table-sm table-bordered text-center table-striped">
+            <thead>
+              <tr>
+                <th>Band Amount (₦)</th>
+                <th>Rate (%)</th>
+                <th>Tax (₦)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for amt, rate, tax in breakdown_old %}
+              <tr>
+                <td>{{ format_amount(amt) }}</td>
+                <td>{{ (rate*100)|round(2) }}</td>
+                <td>{{ format_amount(tax) }}</td>
+              </tr>
+              {% endfor %}
+              <tr>
+                <td colspan="2"><strong>Total Tax</strong></td>
+                <td><strong>{{ format_amount(tax_old) }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="col-md-6">
+          <h5 class="text-success">New Law</h5>
+          <table class="table table-sm table-bordered text-center table-striped">
+            <thead>
+              <tr>
+                <th>Band Amount (₦)</th>
+                <th>Rate (%)</th>
+                <th>Tax (₦)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for amt, rate, tax in breakdown_new %}
+              <tr>
+                <td>{{ format_amount(amt) }}</td>
+                <td>{{ (rate*100)|round(2) }}</td>
+                <td>{{ format_amount(tax) }}</td>
+              </tr>
+              {% endfor %}
+              <tr>
+                <td colspan="2"><strong>Total Tax</strong></td>
+                <td><strong>{{ format_amount(tax_new) }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="d-flex justify-content-center gap-2 mt-3">
+      <button id="downloadChartBtn" class="btn btn-outline-primary">📊 Download Chart (PNG)</button>
+      <form id="pdfForm" action="/download_pdf" method="post" style="display:inline;">
+        <input type="hidden" name="annual_income" value="{{ annual_income }}">
+        <input type="hidden" name="tax_old" value="{{ tax_old }}">
+        <input type="hidden" name="tax_new" value="{{ tax_new }}">
+        <input type="hidden" name="net_annual_old" value="{{ net_annual_old }}">
+        <input type="hidden" name="net_annual_new" value="{{ net_annual_new }}">
+        <input type="hidden" name="net_monthly_old" value="{{ net_monthly_old }}">
+        <input type="hidden" name="net_monthly_new" value="{{ net_monthly_new }}">
+        <input type="hidden" name="chart_image" id="chart_image">
+        <input type="hidden" name="breakdown_old" id="breakdown_old">
+        <input type="hidden" name="breakdown_new" id="breakdown_new">
+        <button type="submit" class="btn btn-success">📄 Download PDF</button>
+      </form>
+      <a href="/" class="btn btn-secondary">↩ New Calculation</a>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('compareChart');
+const data = {
+  labels: ['Old Law','New Law'],
+  datasets: [{
+    label:'Total Tax (₦)',
+    data:[ {{ tax_old }}, {{ tax_new }} ],
+    backgroundColor:['#d9534f','#2ca02c']
+  },{
+    label:'Net Annual (₦)',
+    data:[ {{ net_annual_old }}, {{ net_annual_new }} ],
+    backgroundColor:['#ffd966','#9ad0f5']
+  }]
+};
+const compareChart = new Chart(ctx,{ type:'bar', data:data, options:{ responsive:true, scales:{ y:{ beginAtZero:true, ticks:{ callback: function(value){ return '₦'+value.toLocaleString(); } } } } } });
+
+document.getElementById('downloadChartBtn').addEventListener('click', function(){
+  const link = document.createElement('a');
+  link.href = compareChart.toBase64Image();
+  link.download='tax_comparison_chart.png';
+  link.click();
+});
+
+document.getElementById('pdfForm').addEventListener('submit', function(){
+  const imageData = compareChart.toBase64Image();
+  document.getElementById('chart_image').value = imageData;
+
+  // Pass breakdowns as JSON
+  document.getElementById('breakdown_old').value = JSON.stringify({{ breakdown_old|tojson }});
+  document.getElementById('breakdown_new').value = JSON.stringify({{ breakdown_new|tojson }});
+});
+
+// Toggle dark/light
+document.querySelector('.toggle-btn').addEventListener('click', function() {
+  document.body.classList.toggle('dark');
+  document.body.classList.toggle('light');
+  document.querySelector('.card').classList.toggle('dark');
+});
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
