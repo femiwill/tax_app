@@ -1,118 +1,248 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-bs-theme="light">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Results — Nigeria PIT Comparison</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 <style>
-body.light { background:#f5f7fa; color:#000; }
-body.dark { background:#1e1e2f; color:#fff; }
-.card { border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.06);}
-.card.dark { background:#2a2a40;}
-.chart-area { max-width:760px; margin:20px auto; }
-.toggle-btn { cursor:pointer; }
-.table thead th { background-color: #007bff; color:#fff; }
-.table-dark thead th { background-color:#2a2a40; color:#fff; }
+  :root {
+    --brand-green: #008751;
+    --brand-green-light: #e8f5ee;
+    --brand-dark: #1a1d23;
+    --brand-surface: #21252b;
+    --brand-surface-2: #282c34;
+  }
+  body { background: #f0f2f5; transition: background 0.3s, color 0.3s; }
+  [data-bs-theme="dark"] body,
+  [data-bs-theme="dark"] { background: var(--brand-dark); }
+
+  .navbar-brand-text { font-weight: 700; letter-spacing: -0.5px; }
+  .main-card {
+    border: none; border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  }
+  [data-bs-theme="dark"] .main-card { background: var(--brand-surface); border: 1px solid #2e3238; }
+
+  .section-label {
+    font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--brand-green); margin-bottom: 0.75rem;
+  }
+  [data-bs-theme="dark"] .section-label { color: #4ecca3; }
+
+  /* Summary stat cards */
+  .stat-card {
+    border-radius: 12px; padding: 1.25rem; position: relative; overflow: hidden;
+  }
+  .stat-card::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+  }
+  .stat-card.old { background: #fff5f5; }
+  .stat-card.old::before { background: #dc3545; }
+  .stat-card.new { background: #f0faf4; }
+  .stat-card.new::before { background: var(--brand-green); }
+  [data-bs-theme="dark"] .stat-card.old { background: #2a2025; }
+  [data-bs-theme="dark"] .stat-card.new { background: #1e2a22; }
+
+  .stat-card .stat-label { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-card .stat-value { font-size: 1.1rem; font-weight: 700; margin-top: 0.15rem; }
+
+  /* Savings banner */
+  .savings-banner {
+    background: linear-gradient(135deg, var(--brand-green), #005c38);
+    color: white; border-radius: 12px; padding: 1.25rem 1.5rem;
+    display: flex; align-items: center; gap: 1rem;
+  }
+  .savings-banner .savings-amount { font-size: 1.5rem; font-weight: 800; }
+  .savings-banner .savings-label { font-size: 0.85rem; opacity: 0.85; }
+  .savings-banner .savings-icon { font-size: 2rem; opacity: 0.8; }
+  .savings-banner.negative {
+    background: linear-gradient(135deg, #dc3545, #a71d2a);
+  }
+
+  /* Tables */
+  .breakdown-table thead th {
+    background: var(--brand-green); color: white; font-weight: 600;
+    font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .breakdown-table.old thead th { background: #dc3545; }
+  .breakdown-table tbody td { font-size: 0.9rem; }
+  .breakdown-table tfoot td { font-weight: 700; background: #f8f9fa; }
+  [data-bs-theme="dark"] .breakdown-table tfoot td { background: var(--brand-surface-2); }
+
+  /* Chart */
+  .chart-area { max-width: 700px; margin: 0 auto; }
+
+  /* Buttons */
+  .btn-brand { background: var(--brand-green); border: none; color: white; font-weight: 600; border-radius: 8px; }
+  .btn-brand:hover { background: #006b41; color: white; }
+
+  .footer { font-size: 0.8rem; color: #999; }
 </style>
 </head>
-<body class="light">
-<div class="container py-4">
-  <div class="d-flex justify-content-end mb-2">
-    <span class="toggle-btn btn btn-outline-secondary">Toggle Light/Dark</span>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-sm" style="background: var(--brand-green);">
+  <div class="container">
+    <a class="navbar-brand text-white d-flex align-items-center gap-2" href="/">
+      <i class="bi bi-calculator-fill fs-4"></i>
+      <span class="navbar-brand-text">Nigeria PIT Calculator</span>
+    </a>
+    <button class="btn btn-sm btn-outline-light" id="themeToggle" title="Toggle theme">
+      <i class="bi bi-moon-fill" id="themeIcon"></i>
+    </button>
   </div>
+</nav>
 
-  <div class="card p-4 mx-auto" style="max-width:900px;">
-    <h3 class="text-primary">Nigeria PIT Comparison — Old vs New</h3>
+<div class="container py-4 pb-5">
+  <div class="card main-card p-4 p-md-5 mx-auto" style="max-width:920px;">
 
-    <div class="row g-3 mt-3">
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+      <div>
+        <h4 class="fw-bold mb-1">Tax Comparison Results</h4>
+        <p class="text-body-secondary mb-0">Annual Gross Income: <strong>{{ format_amount(annual_income) }}</strong></p>
+      </div>
+      <a href="/" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i> New Calculation</a>
+    </div>
+
+    <!-- Savings Banner -->
+    {% set savings = tax_old - tax_new %}
+    <div class="savings-banner {{ 'negative' if savings < 0 else '' }} mb-4">
+      <i class="bi {{ 'bi-graph-down-arrow' if savings < 0 else 'bi-piggy-bank-fill' }} savings-icon"></i>
+      <div>
+        <div class="savings-amount">{{ format_amount(savings|abs) }}</div>
+        <div class="savings-label">
+          {% if savings > 0 %}
+            You <strong>save</strong> per year under the new law
+          {% elif savings < 0 %}
+            You pay <strong>more</strong> per year under the new law
+          {% else %}
+            No difference between old and new law
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="section-label"><i class="bi bi-bar-chart-line me-1"></i> Summary</div>
+    <div class="row g-3 mb-4">
       <div class="col-md-6">
-        <div class="p-3 bg-white rounded">
-          <h5 class="text-danger">Old Law</h5>
-          <p><strong>Taxable Income:</strong> {{ format_amount(taxable_old) }}</p>
-          <p><strong>Total Tax:</strong> {{ format_amount(tax_old) }}</p>
-          <p><strong>Net Annual:</strong> {{ format_amount(net_annual_old) }}</p>
-          <p><strong>Net Monthly:</strong> {{ format_amount(net_monthly_old) }}</p>
+        <div class="stat-card old">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <i class="bi bi-file-earmark-text text-danger"></i>
+            <strong class="text-danger">Old Law</strong>
+          </div>
+          <div class="row g-2">
+            <div class="col-6">
+              <div class="stat-label">Taxable Income</div>
+              <div class="stat-value">{{ format_amount(taxable_old) }}</div>
+            </div>
+            <div class="col-6">
+              <div class="stat-label">Total Tax</div>
+              <div class="stat-value text-danger">{{ format_amount(tax_old) }}</div>
+            </div>
+            <div class="col-6">
+              <div class="stat-label">Net Annual</div>
+              <div class="stat-value">{{ format_amount(net_annual_old) }}</div>
+            </div>
+            <div class="col-6">
+              <div class="stat-label">Net Monthly</div>
+              <div class="stat-value">{{ format_amount(net_monthly_old) }}</div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="col-md-6">
-        <div class="p-3 bg-white rounded">
-          <h5 class="text-success">New Law</h5>
-          <p><strong>Rent Relief:</strong> {{ format_amount(rent_relief) }}</p>
-          <p><strong>Taxable Income:</strong> {{ format_amount(taxable_new) }}</p>
-          <p><strong>Total Tax:</strong> {{ format_amount(tax_new) }}</p>
-          <p><strong>Net Annual:</strong> {{ format_amount(net_annual_new) }}</p>
-          <p><strong>Net Monthly:</strong> {{ format_amount(net_monthly_new) }}</p>
+        <div class="stat-card new">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <i class="bi bi-file-earmark-check text-success"></i>
+            <strong class="text-success">New Law</strong>
+          </div>
+          <div class="row g-2">
+            <div class="col-6">
+              <div class="stat-label">Taxable Income</div>
+              <div class="stat-value">{{ format_amount(taxable_new) }}</div>
+            </div>
+            <div class="col-6">
+              <div class="stat-label">Total Tax</div>
+              <div class="stat-value text-success">{{ format_amount(tax_new) }}</div>
+            </div>
+            <div class="col-6">
+              <div class="stat-label">Net Annual</div>
+              <div class="stat-value">{{ format_amount(net_annual_new) }}</div>
+            </div>
+            <div class="col-6">
+              <div class="stat-label">Net Monthly</div>
+              <div class="stat-value">{{ format_amount(net_monthly_new) }}</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Chart -->
-    <div class="chart-area mt-4">
+    <div class="section-label"><i class="bi bi-bar-chart-fill me-1"></i> Visual Comparison</div>
+    <div class="chart-area mb-4">
       <canvas id="compareChart"></canvas>
     </div>
 
-    <!-- Detailed Breakdown Tables -->
-    <div class="mt-4">
-      <h4>Detailed Tax Breakdown per Band</h4>
-      <div class="row">
-        <div class="col-md-6">
-          <h5 class="text-danger">Old Law</h5>
-          <table class="table table-sm table-bordered text-center table-striped">
+    <!-- Breakdown Tables -->
+    <div class="section-label"><i class="bi bi-table me-1"></i> Tax Bracket Breakdown</div>
+    <div class="row g-3 mb-4">
+      <div class="col-md-6">
+        <h6 class="fw-bold text-danger mb-2"><i class="bi bi-caret-right-fill me-1"></i>Old Law</h6>
+        <div class="table-responsive">
+          <table class="table table-sm table-bordered text-center breakdown-table old mb-0">
             <thead>
-              <tr>
-                <th>Band Amount (₦)</th>
-                <th>Rate (%)</th>
-                <th>Tax (₦)</th>
-              </tr>
+              <tr><th>Band (&#8358;)</th><th>Rate</th><th>Tax (&#8358;)</th></tr>
             </thead>
             <tbody>
               {% for amt, rate, tax in breakdown_old %}
               <tr>
                 <td>{{ format_amount(amt) }}</td>
-                <td>{{ (rate*100)|round(2) }}</td>
+                <td>{{ (rate*100)|round(2) }}%</td>
                 <td>{{ format_amount(tax) }}</td>
               </tr>
               {% endfor %}
-              <tr>
-                <td colspan="2"><strong>Total Tax</strong></td>
-                <td><strong>{{ format_amount(tax_old) }}</strong></td>
-              </tr>
             </tbody>
+            <tfoot>
+              <tr><td colspan="2"><strong>Total Tax</strong></td><td><strong>{{ format_amount(tax_old) }}</strong></td></tr>
+            </tfoot>
           </table>
         </div>
-
-        <div class="col-md-6">
-          <h5 class="text-success">New Law</h5>
-          <table class="table table-sm table-bordered text-center table-striped">
+      </div>
+      <div class="col-md-6">
+        <h6 class="fw-bold text-success mb-2"><i class="bi bi-caret-right-fill me-1"></i>New Law</h6>
+        <div class="table-responsive">
+          <table class="table table-sm table-bordered text-center breakdown-table mb-0">
             <thead>
-              <tr>
-                <th>Band Amount (₦)</th>
-                <th>Rate (%)</th>
-                <th>Tax (₦)</th>
-              </tr>
+              <tr><th>Band (&#8358;)</th><th>Rate</th><th>Tax (&#8358;)</th></tr>
             </thead>
             <tbody>
               {% for amt, rate, tax in breakdown_new %}
               <tr>
                 <td>{{ format_amount(amt) }}</td>
-                <td>{{ (rate*100)|round(2) }}</td>
+                <td>{{ (rate*100)|round(2) }}%</td>
                 <td>{{ format_amount(tax) }}</td>
               </tr>
               {% endfor %}
-              <tr>
-                <td colspan="2"><strong>Total Tax</strong></td>
-                <td><strong>{{ format_amount(tax_new) }}</strong></td>
-              </tr>
             </tbody>
+            <tfoot>
+              <tr><td colspan="2"><strong>Total Tax</strong></td><td><strong>{{ format_amount(tax_new) }}</strong></td></tr>
+            </tfoot>
           </table>
         </div>
       </div>
     </div>
 
-    <!-- Buttons -->
-    <div class="d-flex justify-content-center gap-2 mt-3">
-      <button id="downloadChartBtn" class="btn btn-outline-primary">📊 Download Chart (PNG)</button>
+    <!-- Action Buttons -->
+    <div class="d-flex justify-content-center gap-2 flex-wrap">
+      <button id="downloadChartBtn" class="btn btn-outline-primary">
+        <i class="bi bi-image me-1"></i> Download Chart
+      </button>
       <form id="pdfForm" action="/download_pdf" method="post" style="display:inline;">
         <input type="hidden" name="annual_income" value="{{ annual_income }}">
         <input type="hidden" name="tax_old" value="{{ tax_old }}">
@@ -124,54 +254,90 @@ body.dark { background:#1e1e2f; color:#fff; }
         <input type="hidden" name="chart_image" id="chart_image">
         <input type="hidden" name="breakdown_old" id="breakdown_old">
         <input type="hidden" name="breakdown_new" id="breakdown_new">
-        <button type="submit" class="btn btn-success">📄 Download PDF</button>
+        <button type="submit" class="btn btn-brand">
+          <i class="bi bi-file-earmark-pdf me-1"></i> Download PDF
+        </button>
       </form>
-      <a href="/" class="btn btn-secondary">↩ New Calculation</a>
     </div>
+
   </div>
 </div>
 
+<!-- Footer -->
+<footer class="footer text-center py-3">
+  <p class="mb-0">Nigeria PIT Calculator &mdash; Compare old &amp; new personal income tax laws</p>
+</footer>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+// Chart
 const ctx = document.getElementById('compareChart');
-const data = {
-  labels: ['Old Law','New Law'],
-  datasets: [{
-    label:'Total Tax (₦)',
-    data:[ {{ tax_old }}, {{ tax_new }} ],
-    backgroundColor:['#d9534f','#2ca02c']
-  },{
-    label:'Net Annual (₦)',
-    data:[ {{ net_annual_old }}, {{ net_annual_new }} ],
-    backgroundColor:['#ffd966','#9ad0f5']
-  }]
-};
-const compareChart = new Chart(ctx,{ type:'bar', data:data, options:{ responsive:true, scales:{ y:{ beginAtZero:true, ticks:{ callback: function(value){ return '₦'+value.toLocaleString(); } } } } } });
+const compareChart = new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: ['Total Tax', 'Net Annual Income'],
+    datasets: [
+      {
+        label: 'Old Law',
+        data: [{{ tax_old }}, {{ net_annual_old }}],
+        backgroundColor: ['rgba(220, 53, 69, 0.8)', 'rgba(220, 53, 69, 0.5)'],
+        borderColor: ['#dc3545', '#dc3545'],
+        borderWidth: 1, borderRadius: 6
+      },
+      {
+        label: 'New Law',
+        data: [{{ tax_new }}, {{ net_annual_new }}],
+        backgroundColor: ['rgba(0, 135, 81, 0.8)', 'rgba(0, 135, 81, 0.5)'],
+        borderColor: ['#008751', '#008751'],
+        borderWidth: 1, borderRadius: 6
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position: 'top' }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { callback: v => '\u20A6' + v.toLocaleString() }
+      }
+    }
+  }
+});
 
-document.getElementById('downloadChartBtn').addEventListener('click', function(){
+// Download chart as PNG
+document.getElementById('downloadChartBtn').addEventListener('click', () => {
   const link = document.createElement('a');
   link.href = compareChart.toBase64Image();
-  link.download='tax_comparison_chart.png';
+  link.download = 'tax_comparison_chart.png';
   link.click();
 });
 
-document.getElementById('pdfForm').addEventListener('submit', function(){
-  const imageData = compareChart.toBase64Image();
-  document.getElementById('chart_image').value = imageData;
-
-  // Pass breakdowns as JSON
+// PDF form submission
+document.getElementById('pdfForm').addEventListener('submit', () => {
+  document.getElementById('chart_image').value = compareChart.toBase64Image();
   document.getElementById('breakdown_old').value = JSON.stringify({{ breakdown_old|tojson }});
   document.getElementById('breakdown_new').value = JSON.stringify({{ breakdown_new|tojson }});
 });
 
-// Toggle dark/light
-document.querySelector('.toggle-btn').addEventListener('click', function() {
-  document.body.classList.toggle('dark');
-  document.body.classList.toggle('light');
-  document.querySelector('.card').classList.toggle('dark');
+// Theme toggle (synced with index page)
+const html = document.documentElement;
+const toggle = document.getElementById('themeToggle');
+const icon = document.getElementById('themeIcon');
+const saved = localStorage.getItem('theme');
+if (saved) {
+  html.setAttribute('data-bs-theme', saved);
+  icon.className = saved === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+}
+toggle.addEventListener('click', () => {
+  const next = html.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-bs-theme', next);
+  icon.className = next === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+  localStorage.setItem('theme', next);
 });
 </script>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
